@@ -10,13 +10,13 @@ A simple playerctl wrapper for dmenu
 
 ## Features
 
-[x] Show the current playing song
+ - Show the current playing song
 
-[x] Play/Pause
+ - Play/Pause
 
-[x] Next/Previous
+ - Next/Previous
 
-[x] Change player (if multiple players are running)
+ - Change player (if multiple players are running)
 
 ## Usage
 
