@@ -18,11 +18,12 @@ if [ -z $check ]; then
 fi
 
 refresh() {
+	# Remove old album art
 	rm -f $ALBUM_ART_PATH
+
 	if [ "$ALBUM_ART" = true ]; then
-		# Refresh album art
-		curl $(playerctl metadata --format "{{mpris:artUrl}}") >$ALBUM_ART_PATH
-		magick mogrify -define trim:percent-background=0% -trim +repage -format jpg $ALBUM_ART_PATH
+		# Get album art and trim it
+		curl $(playerctl metadata --format "{{mpris:artUrl}}") >$ALBUM_ART_PATH && magick mogrify -define trim:percent-background=0% -trim +repage -format jpg $ALBUM_ART_PATH
 	fi
 }
 
@@ -49,6 +50,11 @@ esac
 # Loop if option is selected
 while true; do
 
+	# Refresh album art if new song is playing
+	if [ "$noRefresh" = false ]; then
+		refresh
+	fi
+
 	# Get currently playing
 	current=$(playerctl metadata --format "{{artist}} - {{title}}")
 
@@ -62,27 +68,25 @@ while true; do
 
 	# Menu prompt
 	selection=$(printf '%s\n' "${opts[@]}" | $MENU ${menu_args[@]})
+	noRefresh=false
 
 	# Handle selection
 	case $selection in
 	"${opts[0]}")
 		playerctl play-pause
+		noRefresh=true
 		;;
 	"${opts[1]}")
 		playerctl next
-		refresh
 		;;
 	"${opts[2]}")
 		playerctl previous
-		refresh
 		;;
 	"${opts[3]}")
 		playerctld shift
-		refresh
 		;;
 	"${opts[4]}")
 		playerctld unshift
-		refresh
 		;;
 	*)
 		break

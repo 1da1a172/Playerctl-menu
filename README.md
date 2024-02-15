@@ -25,7 +25,7 @@ A simple playerctl wrapper for dmenu
 
 ### Rofi album art
 
-- Requires `imagemagick` and `rofi`
+- Requires `imagemagick` and `curl`
 - Set the `ALBUM_ART` variable in the script to true
 - Add the following to your `~/.config/rofi/config` file
 
