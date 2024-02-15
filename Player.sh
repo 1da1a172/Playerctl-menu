@@ -50,11 +50,6 @@ esac
 # Loop if option is selected
 while true; do
 
-	# Refresh album art if new song is playing
-	if [ "$noRefresh" = false ]; then
-		refresh
-	fi
-
 	# Get currently playing
 	current=$(playerctl metadata --format "{{artist}} - {{title}}")
 
@@ -92,4 +87,9 @@ while true; do
 		break
 		;;
 	esac
+	# Refresh album art if new song is playing
+	if [ "$noRefresh" == false ]; then
+		sleep 0.5
+		refresh
+	fi
 done
