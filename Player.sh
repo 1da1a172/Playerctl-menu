@@ -20,8 +20,8 @@ fi
 refresh() {
 	# Remove old album art
 	rm -f $ALBUM_ART_PATH
+
 	if [ "$ALBUM_ART" == true ] && [ "$MENU" == "rofi" ]; then
-		# Sleep to allow album art to load
 		sleep 0.2
 		# Get album art, trim & resize it
 		curl $(playerctl metadata --format "{{mpris:artUrl}}") >$ALBUM_ART_PATH && magick mogrify -define trim:percent-background=0% -trim +repage -resize 500x300! $ALBUM_ART_PATH
@@ -29,7 +29,6 @@ refresh() {
 }
 
 toggle_loop() {
-	# Toggle loop status
 	if [[ $(playerctl loop) == "Playlist" ]]; then
 		playerctl loop Track
 	elif [[ $(playerctl loop) == "Track" ]]; then
@@ -66,23 +65,23 @@ while true; do
 	current=$(playerctl metadata --format "{{artist}} - {{title}}")
 
 	# Set menu options
-	opts=("▶️ $current" "⏭️ next track" "⏮️ previous track" "❌ loop" "❌ shuffle" "➡️ shift source forward" "⬅️ shift source backword")
+	opts=("1. ▶️ $current" "2. ⏭️ next track" "3. ⏮️ previous track" "4. ❌ loop" "5. ❌ shuffle" "6. ➡️ shift source forward" "7. ⬅️ shift source backword")
 
 	# Show play-pause status
 	if [[ $(playerctl status) != "Playing" ]]; then
-		opts[0]="⏸️ $current"
+		opts[0]="1. ⏸️ $current"
 	fi
 
 	# Show loop status
 	if [[ $(playerctl loop) == "Playlist" ]]; then
-		opts[3]="🔁 loop"
+		opts[3]="4. 🔁 loop"
 	elif [[ $(playerctl loop) == "Track" ]]; then
-		opts[3]="🔂 loop"
+		opts[3]="4. 🔂 loop"
 	fi
 
 	# Show shuffle status
 	if [[ $(playerctl shuffle) == "On" ]]; then
-		opts[4]="🔀 shuffle"
+		opts[4]="5. 🔀 shuffle"
 	fi
 
 	# Menu prompt
@@ -119,10 +118,8 @@ while true; do
 		break
 		;;
 	esac
-
 	# Refresh album art if new song is playing
 	if [ "$noRefresh" == false ]; then
 		refresh
 	fi
-
 done
