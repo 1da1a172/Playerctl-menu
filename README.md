@@ -2,7 +2,7 @@
 
 ## Description
 
-A simple playerctl wrapper for dmenu
+A simple playerctl wrapper for rofi/dmenu
 
 ## Screenshots
 
@@ -15,25 +15,27 @@ A simple playerctl wrapper for dmenu
 - Next/Previous
 - loop, shuffle, repeat
 - Change player (if multiple players are running)
+- Album art (rofi only)
 
 ## Usage
 
+- Requires `playerctl` and your menu of choice
 - Clone the repository
 - Open the script and change the menu to your preferred one
 - Compatible with rofi, dmenu, fuzzel, etc.
+- Play some music and run the script
 
-## Expermiental features
-
-### Rofi album art
+## Rofi album art
 
 - Requires `imagemagick` and `curl`
-- Set the `ALBUM_ART` variable in the script to true
 - Through the `window` class you can set the background image to the album art
-- A window width that works well is 500px
-- Add the following to your `~/.config/rofi/config` file
+- Window width should be at least 700px
+- You may copy the following to your `~/.config/rofi/config.rasi` file as an example
 
 ```css
 window {
+  width: 725px;
+  height: 420px;
   background-image: url("~/.cache/album-art.jpg", width);
 }
 ```

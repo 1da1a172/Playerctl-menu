@@ -5,7 +5,7 @@
 # Set your menu command here
 MENU="rofi"
 # Set album art status
-ALBUM_ART=false
+ALBUM_ART=true
 # Set album art path
 ALBUM_ART_PATH=~/.cache/album-art.jpg
 # Set menu prompt
@@ -20,16 +20,16 @@ fi
 refresh() {
 	# Remove old album art
 	rm -f $ALBUM_ART_PATH
-
-	if [[ "$ALBUM_ART" = true && $MENU == "rofi" ]]; then
-		sleep 0.1
-		# Get album art and trim it
-		curl $(playerctl metadata --format "{{mpris:artUrl}}") >$ALBUM_ART_PATH &&
-			magick mogrify -define trim:percent-background=0% -trim +repage -format jpg $ALBUM_ART_PATH
+	if [ "$ALBUM_ART" == true ] && [ "$MENU" == "rofi" ]; then
+		# Sleep to allow album art to load
+		sleep 0.2
+		# Get album art, trim & resize it
+		curl $(playerctl metadata --format "{{mpris:artUrl}}") >$ALBUM_ART_PATH && magick mogrify -define trim:percent-background=0% -trim +repage -resize 500x300! $ALBUM_ART_PATH
 	fi
 }
 
 toggle_loop() {
+	# Toggle loop status
 	if [[ $(playerctl loop) == "Playlist" ]]; then
 		playerctl loop Track
 	elif [[ $(playerctl loop) == "Track" ]]; then
@@ -115,13 +115,14 @@ while true; do
 	"${opts[6]}")
 		playerctld unshift
 		;;
-
 	*)
 		break
 		;;
 	esac
+
 	# Refresh album art if new song is playing
 	if [ "$noRefresh" == false ]; then
 		refresh
 	fi
+
 done
