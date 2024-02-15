@@ -21,7 +21,7 @@ refresh() {
 	# Remove old album art
 	rm -f $ALBUM_ART_PATH
 
-	if [ "$ALBUM_ART" == true ] && [ "$MENU" == "rofi" ]; then
+	if [ "$ALBUM_ART" = true ] && [ "$MENU" = "rofi" ]; then
 		sleep 0.2
 		# Get album art, trim & resize it
 		curl $(playerctl metadata --format "{{mpris:artUrl}}") >$ALBUM_ART_PATH && magick mogrify -define trim:percent-background=0% -trim +repage -resize 500x300! $ALBUM_ART_PATH
@@ -29,9 +29,9 @@ refresh() {
 }
 
 toggle_loop() {
-	if [[ $(playerctl loop) == "Playlist" ]]; then
+	if [ $(playerctl loop) = "Playlist" ]; then
 		playerctl loop Track
-	elif [[ $(playerctl loop) == "Track" ]]; then
+	elif [ $(playerctl loop) = "Track" ]; then
 		playerctl loop None
 	else
 		playerctl loop Playlist
@@ -41,20 +41,20 @@ toggle_loop() {
 # Set menu arguments
 case $MENU in
 "rofi")
-	menu_args=(-dmenu -l 7 -p "$PROMPT")
+	menuArgs=(-dmenu -l 7 -p "$PROMPT")
 	refresh
 	;;
 "fuzzel" | "wofi")
-	menu_args=(-d -l 7 -p "$PROMPT")
+	menuArgs=(-d -l 7 -p "$PROMPT")
 	;;
 "tofi")
-	menu_args=(--prompt-text "$PROMPT")
+	menuArgs=(--prompt-text "$PROMPT")
 	;;
 "dmenu")
-	menu_args=(-p "$PROMPT")
+	menuArgs=(-p "$PROMPT")
 	;;
 *)
-	menu_args=()
+	menuArgs=()
 	;;
 esac
 
@@ -68,24 +68,24 @@ while true; do
 	opts=("1. ▶️ $current" "2. ⏭️ next track" "3. ⏮️ previous track" "4. ❌ loop" "5. ❌ shuffle" "6. ➡️ shift source forward" "7. ⬅️ shift source backword")
 
 	# Show play-pause status
-	if [[ $(playerctl status) != "Playing" ]]; then
+	if [ $(playerctl status) != "Playing" ]; then
 		opts[0]="1. ⏸️ $current"
 	fi
 
 	# Show loop status
-	if [[ $(playerctl loop) == "Playlist" ]]; then
+	if [ $(playerctl loop) = "Playlist" ]; then
 		opts[3]="4. 🔁 loop"
-	elif [[ $(playerctl loop) == "Track" ]]; then
+	elif [ $(playerctl loop) = "Track" ]; then
 		opts[3]="4. 🔂 loop"
 	fi
 
 	# Show shuffle status
-	if [[ $(playerctl shuffle) == "On" ]]; then
+	if [ $(playerctl shuffle) = "On" ]; then
 		opts[4]="5. 🔀 shuffle"
 	fi
 
 	# Menu prompt
-	selection=$(printf '%s\n' "${opts[@]}" | $MENU ${menu_args[@]})
+	selection=$(printf '%s\n' "${opts[@]}" | $MENU ${menuArgs[@]})
 	noRefresh=false
 
 	# Handle selection
@@ -119,7 +119,7 @@ while true; do
 		;;
 	esac
 	# Refresh album art if new song is playing
-	if [ "$noRefresh" == false ]; then
+	if [ "$noRefresh" = false ]; then
 		refresh
 	fi
 done

@@ -4,10 +4,6 @@
 
 A simple playerctl wrapper for rofi/dmenu
 
-## Screenshots
-
-![Alt text](example-fuzzel.png?raw=true "Example Fuzzel menu")
-
 ## Features
 
 - Show the current playing song
@@ -16,6 +12,10 @@ A simple playerctl wrapper for rofi/dmenu
 - loop, shuffle, repeat
 - Change player (if multiple players are running)
 - Album art (rofi only)
+
+## Screenshots
+
+![Alt text](example-fuzzel.png?raw=true "Example Fuzzel menu")
 
 ## Usage
 
