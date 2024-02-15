@@ -11,11 +11,8 @@ A simple playerctl wrapper for dmenu
 ## Features
 
  - Show the current playing song
-
  - Play/Pause
-
  - Next/Previous
-
  - Change player (if multiple players are running)
 
 ## Usage
