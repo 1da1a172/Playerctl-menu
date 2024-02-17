@@ -28,14 +28,11 @@ A simple playerctl wrapper for rofi/dmenu
 ## Rofi album art
 
 - Requires `imagemagick` and `curl`
-- Through the `window` class you can set the background image to the album art
-- Window width should be at least 700px
-- You may copy the following to your `~/.config/rofi/config.rasi` file as an example
+- Clone the repository and run the following command
 
-```css
-window {
-  width: 725px;
-  height: 420px;
-  background-image: url("~/.cache/album-art.jpg", width);
-}
+```bash
+cd Playerctl-menu/ && cp player.rasi ~/.config/rofi/player.rasi
 ```
+
+- Modify the `player.rasi` file to your liking
+- Use the `playerctl-menu` script as usual

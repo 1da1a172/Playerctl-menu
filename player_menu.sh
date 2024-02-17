@@ -10,10 +10,12 @@ ALBUM_ART=true
 ALBUM_ART_PATH=~/.cache/album-art.jpg
 # Set menu prompt
 PROMPT="PlayerControl"
+# Set the rofi config
+ROFI_CONFIG="$HOME/.config/rofi/player.rasi"
 
 # Exit if no media is playing
 check=$(playerctl metadata)
-if [ -z $check ]; then
+if [[ -z $check ]]; then
 	exit 0
 fi
 
@@ -24,7 +26,7 @@ refresh() {
 	if [ "$ALBUM_ART" = true ] && [ "$MENU" = "rofi" ]; then
 		sleep 0.2
 		# Get album art, trim & resize it
-		curl $(playerctl metadata --format "{{mpris:artUrl}}") >$ALBUM_ART_PATH && magick mogrify -define trim:percent-background=0% -trim +repage -resize 500x300! $ALBUM_ART_PATH
+		curl -m 3 $(playerctl metadata --format "{{mpris:artUrl}}") >$ALBUM_ART_PATH && magick mogrify -define trim:percent-background=0% -trim +repage -resize 638x638! $ALBUM_ART_PATH
 	fi
 }
 
@@ -42,6 +44,9 @@ toggle_loop() {
 case $MENU in
 "rofi")
 	menuArgs=(-dmenu -l 7 -p "$PROMPT")
+	if test -f "$ROFI_CONFIG"; then
+		menuArgs+=(-config "$ROFI_CONFIG")
+	fi
 	refresh
 	;;
 "fuzzel" | "wofi")

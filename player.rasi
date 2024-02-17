@@ -1,0 +1,13 @@
+window {
+  width: 638px;
+  height: 638px;
+  background-image: url("~/.cache/album-art.jpg", width);
+}
+
+listview {
+  scrollbar: false;
+}
+
+entry {
+  placeholder: "";
+}
