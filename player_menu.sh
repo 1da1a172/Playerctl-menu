@@ -7,7 +7,7 @@ MENU="rofi"
 # Set album art status
 ALBUM_ART=true
 # Set album art path
-ALBUM_ART_PATH=~/.cache/album-art.jpg
+ALBUM_ART_PATH="$HOME/.cache/album-art.jpg"
 # Set menu prompt
 PROMPT="PlayerControl"
 # Set the rofi config
@@ -21,7 +21,7 @@ fi
 
 refresh() {
 	# Remove old album art
-	rm -f $ALBUM_ART_PATH
+	rm -f "${ALBUM_ART_PATH:?}"
 
 	if [ "$ALBUM_ART" = true ] && [ "$MENU" = "rofi" ]; then
 		sleep 0.2
@@ -31,9 +31,9 @@ refresh() {
 }
 
 toggle_loop() {
-	if [ $(playerctl loop) = "Playlist" ]; then
+	if [ "$(playerctl loop)" = "Playlist" ]; then
 		playerctl loop Track
-	elif [ $(playerctl loop) = "Track" ]; then
+	elif [ "$(playerctl loop)" = "Track" ]; then
 		playerctl loop None
 	else
 		playerctl loop Playlist
@@ -67,34 +67,34 @@ esac
 while true; do
 
 	# Get currently playing
-	current=$(playerctl metadata --format "{{artist}} - {{title}}")
+	current="$(playerctl metadata --format "{{artist}} - {{title}}")"
 
 	# Set menu options
 	opts=("1. ▶️ $current" "2. ⏭️ next track" "3. ⏮️ previous track" "4. ❌ loop" "5. ❌ shuffle" "6. ➡️ shift source forward" "7. ⬅️ shift source backword")
 
 	# Show play-pause status
-	if [ $(playerctl status) != "Playing" ]; then
+	if [ "$(playerctl status)" != "Playing" ]; then
 		opts[0]="1. ⏸️ $current"
 	fi
 
 	# Show loop status
-	if [ $(playerctl loop) = "Playlist" ]; then
+	if [ "$(playerctl loop)" = "Playlist" ]; then
 		opts[3]="4. 🔁 loop"
-	elif [ $(playerctl loop) = "Track" ]; then
+	elif [ "$(playerctl loop)" = "Track" ]; then
 		opts[3]="4. 🔂 loop"
 	fi
 
 	# Show shuffle status
-	if [ $(playerctl shuffle) = "On" ]; then
+	if [ "$(playerctl shuffle)" = "On" ]; then
 		opts[4]="5. 🔀 shuffle"
 	fi
 
 	# Menu prompt
-	selection=$(printf '%s\n' "${opts[@]}" | $MENU ${menuArgs[@]})
+	selection="$(printf '%s\n' "${opts[@]}" | $MENU "${menuArgs[@]}")"
 	noRefresh=false
 
 	# Handle selection
-	case $selection in
+	case "$selection" in
 	"${opts[0]}")
 		playerctl play-pause
 		noRefresh=true
