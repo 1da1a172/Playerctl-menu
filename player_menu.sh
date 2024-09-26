@@ -26,7 +26,14 @@ refresh() {
 	if [ "$ALBUM_ART" = true ] && [ "$MENU" = "rofi" ]; then
 		sleep 0.2
 		# Get album art, trim & resize it
-		curl -m 3 $(playerctl metadata --format "{{mpris:artUrl}}") >$ALBUM_ART_PATH && magick mogrify -define trim:percent-background=0% -trim +repage -resize 638x638! $ALBUM_ART_PATH
+		curl -m 3 "$(playerctl metadata --format "{{mpris:artUrl}}")" \
+			> "$ALBUM_ART_PATH" \
+			&& magick mogrify \
+				-define trim:percent-background=0% \
+				-trim \
+				+repage \
+				-resize 638x638! \
+				"$ALBUM_ART_PATH"
 	fi
 }
 
@@ -70,7 +77,15 @@ while true; do
 	current="$(playerctl metadata --format "{{artist}} - {{title}}")"
 
 	# Set menu options
-	opts=("1. ▶️ $current" "2. ⏭️ next track" "3. ⏮️ previous track" "4. ❌ loop" "5. ❌ shuffle" "6. ➡️ shift source forward" "7. ⬅️ shift source backword")
+	opts=(
+		"1. ▶️ $current"
+		"2. ⏭️ next track"
+		"3. ⏮️ previous track"
+		"4. ❌ loop"
+		"5. ❌ shuffle"
+		"6. ➡️ shift source forward"
+		"7. ⬅️ shift source backward"
+	)
 
 	# Show play-pause status
 	if [ "$(playerctl status)" != "Playing" ]; then
