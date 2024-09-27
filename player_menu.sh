@@ -37,6 +37,10 @@ refresh() {
 	fi
 }
 
+is_playing() {
+	[ "$(playerctl status)" = "Playing" ]
+}
+
 toggle_loop() {
 	if [ "$(playerctl loop)" = "Playlist" ]; then
 		playerctl loop Track
@@ -47,34 +51,43 @@ toggle_loop() {
 	fi
 }
 
-# Set menu arguments
-case $MENU in
-"rofi")
-	menuArgs=(-dmenu -l 7 -p "$PROMPT")
-	if test -f "$ROFI_CONFIG"; then
-		menuArgs+=(-config "$ROFI_CONFIG")
-	fi
-	refresh
-	;;
-"fuzzel" | "wofi")
-	menuArgs=(-d -l 7 -p "$PROMPT")
-	;;
-"tofi")
-	menuArgs=(--prompt-text "$PROMPT")
-	;;
-"dmenu")
-	menuArgs=(-p "$PROMPT")
-	;;
-*)
-	menuArgs=()
-	;;
-esac
+current() {
+	playerctl \
+		metadata \
+		--format "{{artist}} - {{title}}"
+}
+
+menu() {
+	prompt="${1:-$PROMPT}"
+	case $MENU in
+	"rofi")
+		menuArgs=(-dmenu -l 7 -p "$prompt")
+		if test -f "$ROFI_CONFIG"; then
+			menuArgs+=(-config "$ROFI_CONFIG")
+		fi
+		refresh
+		;;
+	"fuzzel" | "wofi")
+		menuArgs=(-d -l 7 -p "$prompt")
+		;;
+	"tofi")
+		menuArgs=(--prompt-text "$prompt")
+		;;
+	"dmenu")
+		menuArgs=(-p "$prompt")
+		;;
+	*)
+		menuArgs=()
+		;;
+	esac
+	$MENU "${menuArgs[@]}"
+}
 
 # Loop if option is selected
 while true; do
 
 	# Get currently playing
-	current="$(playerctl metadata --format "{{artist}} - {{title}}")"
+	current="$(current)"
 
 	# Set menu options
 	opts=(
@@ -88,7 +101,7 @@ while true; do
 	)
 
 	# Show play-pause status
-	if [ "$(playerctl status)" != "Playing" ]; then
+	if is_playing; then
 		opts[0]="1. ⏸️ $current"
 	fi
 
@@ -105,7 +118,7 @@ while true; do
 	fi
 
 	# Menu prompt
-	selection="$(printf '%s\n' "${opts[@]}" | $MENU "${menuArgs[@]}")"
+	selection="$(printf '%s\n' "${opts[@]}" | menu)"
 	noRefresh=false
 
 	# Handle selection
