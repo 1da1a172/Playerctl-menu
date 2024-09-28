@@ -10,14 +10,10 @@ ALBUM_ART=true
 ALBUM_ART_PATH="$HOME/.cache/album-art.jpg"
 # Set menu prompt
 PROMPT="PlayerControl"
+# Set menu prompt for picking a player
+PLAYER_PROMPT="${PROMPT}"
 # Set the rofi config
 ROFI_CONFIG="$HOME/.config/rofi/player.rasi"
-
-# Exit if no media is playing
-check=$(playerctl metadata)
-if [[ -z $check ]]; then
-	exit 0
-fi
 
 refresh() {
 	# Remove old album art
@@ -33,7 +29,7 @@ get_album_art() {
 	curl \
 		--silent \
 		--max-time 3 \
-		"$(playerctl metadata mpris:artUrl)"
+		"$(playerctl --player "$PLAYER" metadata mpris:artUrl)"
 }
 
 shape_album_art() {
@@ -47,13 +43,13 @@ shape_album_art() {
 }
 
 is_playing() {
-	[ "$(playerctl status)" = "Playing" ]
+	[ "$(playerctl --player "${1:-$PLAYER}" status)" = "Playing" ]
 }
 
 toggle_loop() {
-	if [ "$(playerctl loop)" = "Playlist" ]; then
+	if [ "$(playerctl --player "$PLAYER" loop)" = "Playlist" ]; then
 		playerctl loop Track
-	elif [ "$(playerctl loop)" = "Track" ]; then
+	elif [ "$(playerctl --player "$PLAYER" loop)" = "Track" ]; then
 		playerctl loop None
 	else
 		playerctl loop Playlist
@@ -62,6 +58,7 @@ toggle_loop() {
 
 current() {
 	playerctl \
+		--player "$PLAYER" \
 		metadata \
 		--format "{{artist}} - {{title}}"
 }
@@ -92,6 +89,51 @@ menu() {
 	$MENU "${menuArgs[@]}"
 }
 
+select_player() {
+	# Build list of players to choose from
+	playerList=()
+	while read -r somePlayer; do
+		if is_playing "$somePlayer"; then
+			playerList+=("$somePlayer")
+		fi
+	done < <(playerctl --list-all)
+	if [ ${#playerList[@]} = 0 ]; then
+		mapfile -t playerList < <(playerctl --list-all)
+	fi
+
+	# Only display a menu for multiple options
+	case ${#playerList[@]} in
+	0)
+		return 1
+		;;
+	1)
+		printf '%s' "${playerList[0]}"
+		return 0
+		;;
+	esac
+
+	# Build menu options
+	opts=()
+	for somePlayer in "${playerList[@]}"; do
+		opts+=("$(printf '%d. %s | %s' \
+			$(( ${#opts[@]} + 1 )) \
+			"$somePlayer" \
+			"$(current "$somePlayer")"
+		)")
+	done
+
+	# Pick a player
+	selected="$(printf '%s\n' "${opts[@]}" \
+		| menu "$PLAYER_PROMPT" \
+		| cut -f 1 -d .
+	)"
+	[ -z "$selected" ] && exit 1
+	(( selected-- ))
+	printf '%s' "${playerList[$selected]}"
+}
+
+PLAYER="$(select_player)" || exit 0
+
 # Loop if option is selected
 while true; do
 
@@ -115,14 +157,14 @@ while true; do
 	fi
 
 	# Show loop status
-	if [ "$(playerctl loop)" = "Playlist" ]; then
+	if [ "$(playerctl --player "$PLAYER" loop)" = "Playlist" ]; then
 		opts[3]="4. 🔁 loop"
-	elif [ "$(playerctl loop)" = "Track" ]; then
+	elif [ "$(playerctl --player "$PLAYER" loop)" = "Track" ]; then
 		opts[3]="4. 🔂 loop"
 	fi
 
 	# Show shuffle status
-	if [ "$(playerctl shuffle)" = "On" ]; then
+	if [ "$(playerctl --player "$PLAYER" shuffle)" = "On" ]; then
 		opts[4]="5. 🔀 shuffle"
 	fi
 
@@ -133,28 +175,28 @@ while true; do
 	# Handle selection
 	case "$selection" in
 	"${opts[0]}")
-		playerctl play-pause
+		playerctl --player "$PLAYER" play-pause
 		noRefresh=true
 		;;
 	"${opts[1]}")
-		playerctl next
+		playerctl --player "$PLAYER" next
 		;;
 	"${opts[2]}")
-		playerctl previous
+		playerctl --player "$PLAYER" previous
 		;;
 	"${opts[3]}")
 		toggle_loop
 		noRefresh=true
 		;;
 	"${opts[4]}")
-		playerctl shuffle toggle
+		playerctl --player "$PLAYER" shuffle toggle
 		noRefresh=true
 		;;
 	"${opts[5]}")
-		playerctld shift
+		playerctl --player "$PLAYER" shift
 		;;
 	"${opts[6]}")
-		playerctld unshift
+		playerctl --player "$PLAYER" unshift
 		;;
 	*)
 		break
