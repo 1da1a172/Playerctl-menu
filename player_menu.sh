@@ -25,16 +25,25 @@ refresh() {
 
 	if [ "$ALBUM_ART" = true ] && [ "$MENU" = "rofi" ]; then
 		sleep 0.2
-		# Get album art, trim & resize it
-		curl -m 3 "$(playerctl metadata --format "{{mpris:artUrl}}")" \
-			> "$ALBUM_ART_PATH" \
-			&& magick mogrify \
-				-define trim:percent-background=0% \
-				-trim \
-				+repage \
-				-resize 638x638! \
-				"$ALBUM_ART_PATH"
+		get_album_art | shape_album_art > "$ALBUM_ART_PATH"
 	fi
+}
+
+get_album_art() {
+	curl \
+		--silent \
+		--max-time 3 \
+		"$(playerctl metadata mpris:artUrl)"
+}
+
+shape_album_art() {
+	magick \
+		/dev/stdin \
+		-define trim:percent-background=0% \
+		-trim \
+		+repage \
+		-resize 638x638! \
+		/dev/stdout
 }
 
 is_playing() {
