@@ -19,10 +19,11 @@ refresh() {
 	# Remove old album art
 	rm -f "${ALBUM_ART_PATH:?}"
 
-	if [ "$ALBUM_ART" = true ] && [ "$MENU" = "rofi" ]; then
-		sleep 0.2
-		get_album_art | shape_album_art > "$ALBUM_ART_PATH"
-	fi
+	[ -n "${PLAYER}" ] || return 0
+	[ "$ALBUM_ART" = "true" ] || return 0
+	[ "$MENU" = "rofi" ] || return 0
+	sleep 0.2
+	get_album_art | shape_album_art > "$ALBUM_ART_PATH"
 }
 
 get_album_art() {
@@ -58,7 +59,7 @@ toggle_loop() {
 
 current() {
 	playerctl \
-		--player "$PLAYER" \
+		--player "${1:-$PLAYER}" \
 		metadata \
 		--format "{{artist}} - {{title}}"
 }
